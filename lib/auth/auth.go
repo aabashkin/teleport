@@ -904,6 +904,12 @@ func NewServer(cfg *InitConfig, opts ...ServerOption) (as *Server, err error) {
 		as.logger.WarnContext(closeCtx, "Auth server starting without cache (may have negative performance implications)")
 	}
 
+	// Initialize the OIDC SSO service if not already set.
+	// This provides OIDC authentication support in the open source version.
+	if as.oidcAuthService == nil {
+		as.SetOIDCService(NewOIDCSSOService(as))
+	}
+
 	return as, nil
 }
 
