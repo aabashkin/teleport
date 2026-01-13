@@ -536,7 +536,7 @@ func (s *OIDCSSOService) calculateOIDCUser(ctx context.Context, diagCtx *SSODiag
 	}
 
 	// Map claims to roles using the connector's claim mappings.
-	p.Roles, p.KubeGroups, p.KubeUsers = s.mapClaimsToRoles(connector, claims)
+	p.Roles = s.mapClaimsToRoles(connector, claims)
 	if len(p.Roles) == 0 {
 		return nil, trace.AccessDenied("user does not belong to any groups mapped to roles; the configuration may have typos")
 	}
@@ -571,7 +571,8 @@ func (s *OIDCSSOService) calculateOIDCUser(ctx context.Context, diagCtx *SSODiag
 }
 
 // mapClaimsToRoles maps OIDC claims to Teleport roles.
-func (s *OIDCSSOService) mapClaimsToRoles(connector types.OIDCConnector, claims map[string]interface{}) (roles []string, kubeGroups []string, kubeUsers []string) {
+func (s *OIDCSSOService) mapClaimsToRoles(connector types.OIDCConnector, claims map[string]interface{}) []string {
+	var roles []string
 	for _, mapping := range connector.GetClaimsToRoles() {
 		claimValue, ok := claims[mapping.Claim]
 		if !ok {
@@ -606,7 +607,7 @@ func (s *OIDCSSOService) mapClaimsToRoles(connector types.OIDCConnector, claims 
 		}
 	}
 
-	return apiutils.Deduplicate(roles), kubeGroups, kubeUsers
+	return apiutils.Deduplicate(roles)
 }
 
 // buildTraits builds user traits from OIDC claims.
@@ -817,10 +818,4 @@ func (s *OIDCSSOService) makeOIDCAuthResponse(
 	}
 
 	return &auth, nil
-}
-
-// init registers the OIDC SSO service with the auth server.
-func init() {
-	// This function will be called to register the OIDC service.
-	// The actual registration happens when the auth server is initialized.
 }
