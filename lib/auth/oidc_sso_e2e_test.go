@@ -564,8 +564,7 @@ func TestOIDCSSOE2E_ConnectorLifecycle(t *testing.T) {
 
 	// 5. Verify deletion.
 	_, err = a.GetOIDCConnector(ctx, connectorName, false)
-	require.Error(t, err)
-	assert.True(t, err != nil) // Connector should not exist.
+	require.Error(t, err) // Connector should not exist.
 }
 
 // TestOIDCSSOE2E_MultipleRedirectURLs tests connectors with multiple redirect URLs.
